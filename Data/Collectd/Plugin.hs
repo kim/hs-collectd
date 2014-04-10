@@ -7,13 +7,14 @@ module Data.Collectd.Plugin
     , getPrev
     , putVal
     , schedExec
+    , module PT
     )
 where
 
 import Control.Applicative
 import Control.Concurrent      (threadDelay)
 import Control.Monad.Reader
-import Data.Collectd.PlainText
+import Data.Collectd.PlainText as PT
 import Data.Maybe
 import Data.Text               (pack)
 import Data.Text.Lazy.Builder  (toLazyText)
