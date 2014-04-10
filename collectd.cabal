@@ -16,6 +16,7 @@ library
         Data.Collectd.Binary
       , Data.Collectd.Parsers
       , Data.Collectd.PlainText
+      , Data.Collectd.Plugin
       , Data.Collectd.Types
 
   build-depends:
@@ -23,6 +24,8 @@ library
       , base        ==4.*
       , bytestring
       , cereal      ==0.4.*
+      , mtl
+      , network
       , text
       , time
 

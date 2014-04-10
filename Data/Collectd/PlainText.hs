@@ -3,7 +3,6 @@
 module Data.Collectd.PlainText
     ( formatRequest
     , parseNotification
-    , submit
     , module Types
     )
 where
@@ -14,12 +13,10 @@ import Data.Collectd.Types   as Types
 import Data.List
 import Data.Monoid
 import Data.Text             (Text)
-import System.IO             (Handle)
 
 import qualified Data.Text.Lazy.Builder           as L
 import qualified Data.Text.Lazy.Builder.Int       as L
 import qualified Data.Text.Lazy.Builder.RealFloat as L
-import qualified Data.Text.Lazy.IO                as L
 
 
 parseNotification :: Text -> Either String Notification
@@ -55,9 +52,6 @@ formatRequest rq = case rq of
             ]
   where
     lst = mconcat . intersperse " "
-
-submit :: Handle -> Request -> IO ()
-submit h = L.hPutStrLn h . L.toLazyText . formatRequest
 
 bIdentifier :: Identifier -> L.Builder
 bIdentifier (Identifier host plugin pluginInst typ typInst) =
