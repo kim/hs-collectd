@@ -1,5 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Data.Collectd.Plugin
     ( Exec
@@ -23,6 +22,7 @@ import Network.BSD             (getHostName)
 import Prelude                 hiding (putStrLn)
 import System.Environment      (lookupEnv)
 import System.IO               (hFlush, stdout)
+import Text.Read               (readMaybe)
 
 
 newtype Ident = Ident { runIdent :: Typ -> Maybe TypInst -> Identifier }
@@ -44,8 +44,8 @@ getPrev = asks _prev
 
 schedExec :: Plugin -> Maybe PluginInst -> a -> Exec a b b -> IO ()
 schedExec p mpInst a m = do
-    h <- maybe getHostName return =<< lookupEnv "COLLECTD_HOST"
-    i <- fmap read <$> lookupEnv "COLLECTD_INTERVAL"
+    h <- host =<< lookupEnv "COLLECTD_HOST"
+    i <- intv =<< lookupEnv "COLLECTD_INTERVAL"
 
     let idt = mkIdent (pack h) p mpInst
         opt = maybe [] ((:[]) . Interval) i
@@ -57,9 +57,13 @@ schedExec p mpInst a m = do
         new <- run env
         hFlush stdout
         case i of
-            Nothing  -> return ()
-            Just sec -> threadDelay (1000 * 1000 * fromIntegral sec)
-                     >> loop run env { _prev = Just new } i
+            Just sec | sec > 0 -> do
+                threadDelay (1000 * 1000 * fromIntegral sec)
+                loop run env { _prev = Just new } i
+            _ -> return ()
+
+    host = maybe getHostName pure
+    intv = pure . maybe Nothing readMaybe
 
 putVal :: Maybe Typ -> Maybe TypInst -> Value -> Exec a b ()
 putVal mtyp mtypInst val = do
