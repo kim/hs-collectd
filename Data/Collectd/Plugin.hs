@@ -73,7 +73,7 @@ schedExec p mpInst a m = do
             _ -> return ()
 
     host = maybe getHostName pure
-    intv = pure . maybe Nothing readMaybe
+    intv = pure . join . fmap readMaybe
 
 putVal :: Maybe Typ -> Maybe TypInst -> Value -> Exec a b ()
 putVal mtyp mtypInst val = do
