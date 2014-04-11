@@ -93,17 +93,15 @@ putNotif :: Maybe Typ
          -> Maybe TypInst
          -> Message
          -> Severity
-         -> Timestamp
          -> Exec a b ()
-putNotif mtyp mtypInst msg sev t = do
+putNotif mtyp mtypInst msg sev = do
     nid <- getNid
+    now <- Timestamp <$> liftIO getPOSIXTime
     liftIO . dispatch $
-        PutNotif msg sev t (runNotifIdent nid mtyp mtypInst)
+        PutNotif msg sev now (runNotifIdent nid mtyp mtypInst)
 
 putNotifSimple :: Message -> Severity -> Exec a b ()
-putNotifSimple msg sev = do
-    now <- Timestamp <$> liftIO getPOSIXTime
-    putNotif Nothing Nothing msg sev now
+putNotifSimple = putNotif Nothing Nothing
 
 
 --------------------------------------------------------------------------------
