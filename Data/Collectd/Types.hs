@@ -19,6 +19,14 @@ data Identifier
     = Identifier !Host !Plugin (Maybe PluginInst) !Typ (Maybe TypInst)
     deriving (Eq, Show)
 
+data NotificationIdentifier
+    = NotificationIdentifier (Maybe Host)
+                             (Maybe Plugin)
+                             (Maybe PluginInst)
+                             (Maybe Typ)
+                             (Maybe TypInst)
+    deriving (Eq, Show)
+
 data Value
     = Counter  !Word64
     | Absolute !Word64
@@ -44,8 +52,7 @@ data Request
     = GetVal   !Identifier
     | ListVal
     | PutVal   !Identifier [Option] !ValueList
-    | PutNotif !Message !Severity !Timestamp (Maybe Host)
-               (Maybe Plugin) (Maybe PluginInst) (Maybe Typ) (Maybe TypInst)
+    | PutNotif !Message !Severity !Timestamp !NotificationIdentifier
     | Flush    (Maybe Int) [Plugin] [Identifier]
     deriving (Eq, Show)
 

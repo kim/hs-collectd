@@ -32,16 +32,12 @@ formatRequest rq = case rq of
             , bValues vals
             ]
 
-    PutNotif msg sev t mhost mplugin mpluginInst mTyp mTypInst ->
+    PutNotif msg sev t nident ->
         lst [ "PUTNOTIF"
             , L.fromText ("message=" <> msg)
             , bSeverity sev
-            , "time="    <> bTimestamp t
-            , maybe mempty (mappend "host="            . L.fromText) mhost
-            , maybe mempty (mappend "plugin="          . L.fromText) mplugin
-            , maybe mempty (mappend "plugin_instance=" . L.fromText) mpluginInst
-            , maybe mempty (mappend "type="            . L.fromText) mTyp
-            , maybe mempty (mappend "type_instance="   . L.fromText) mTypInst
+            , "time=" <> bTimestamp t
+            , bNotificationIdentifier nident
             ]
 
     Flush timeout plugins idents ->
@@ -50,8 +46,11 @@ formatRequest rq = case rq of
             , lst $ map (mappend "plugin="     . L.fromText ) plugins
             , lst $ map (mappend "identifier=" . bIdentifier) idents
             ]
-  where
-    lst = mconcat . intersperse " "
+
+--------------------------------------------------------------------------------
+
+lst :: [L.Builder] -> L.Builder
+lst = mconcat . intersperse " "
 
 bIdentifier :: Identifier -> L.Builder
 bIdentifier (Identifier host plugin pluginInst typ typInst) =
@@ -62,6 +61,15 @@ bIdentifier (Identifier host plugin pluginInst typ typInst) =
     <> "/"
     <> L.fromText typ
     <> maybe "" (("-" <>) . L.fromText) typInst
+
+bNotificationIdentifier :: NotificationIdentifier -> L.Builder
+bNotificationIdentifier (NotificationIdentifier mhost mplugin mpluginInst mTyp mTypInst) =
+    lst [ maybe mempty (mappend "host="            . L.fromText) mhost
+        , maybe mempty (mappend "plugin="          . L.fromText) mplugin
+        , maybe mempty (mappend "plugin_instance=" . L.fromText) mpluginInst
+        , maybe mempty (mappend "type="            . L.fromText) mTyp
+        , maybe mempty (mappend "type_instance="   . L.fromText) mTypInst
+        ]
 
 bOptions :: [Option] -> [L.Builder]
 bOptions = map fromOption
