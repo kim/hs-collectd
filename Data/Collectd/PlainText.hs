@@ -34,7 +34,7 @@ formatRequest rq = case rq of
 
     PutNotif msg sev t nident ->
         lst [ "PUTNOTIF"
-            , L.fromText ("message=" <> msg)
+            , L.fromText ("message=\"" <> msg <> "\"")
             , bSeverity sev
             , "time=" <> bTimestamp t
             , bNotificationIdentifier nident
