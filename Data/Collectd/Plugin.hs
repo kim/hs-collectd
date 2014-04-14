@@ -2,8 +2,12 @@
 
 module Data.Collectd.Plugin
     ( Exec
+    , dispatch
     , getEnv
     , getPrev
+    , getIdent
+    , getNid
+    , getOpts
     , putVal
     , putNotif
     , putNotifSimple
@@ -51,6 +55,15 @@ getEnv = asks _env
 getPrev :: Exec a b (Maybe b)
 getPrev = asks _prev
 
+getIdent :: Exec a b Ident
+getIdent = asks _ident
+
+getNid :: Exec a b NotifIdent
+getNid = asks _nid
+
+getOpts :: Exec a b [Option]
+getOpts = asks _opts
+
 schedExec :: Plugin -> Maybe PluginInst -> a -> Exec a b b -> IO ()
 schedExec p mpInst a m = do
     h <- host =<< lookupEnv "COLLECTD_HOST"
@@ -75,11 +88,14 @@ schedExec p mpInst a m = do
     host = maybe getHostName pure
     intv = pure . join . fmap readMaybe
 
+dispatch :: Request -> Exec a b ()
+dispatch = liftIO . putStrLn . toLazyText . formatRequest
+
 putVal :: Maybe Typ -> Maybe TypInst -> Value -> Exec a b ()
 putVal mtyp mtypInst val = do
     opts  <- getOpts
     ident <- getIdent
-    liftIO . dispatch $
+    dispatch $
         PutVal (runIdent ident typ mtypInst) opts (ValueList Now [val])
   where
     typ  = fromMaybe vtyp mtyp
@@ -97,7 +113,7 @@ putNotif :: Maybe Typ
 putNotif mtyp mtypInst msg sev = do
     nid <- getNid
     now <- Timestamp <$> liftIO getPOSIXTime
-    liftIO . dispatch $
+    dispatch $
         PutNotif msg sev now (runNotifIdent nid mtyp mtypInst)
 
 putNotifSimple :: Message -> Severity -> Exec a b ()
@@ -106,20 +122,8 @@ putNotifSimple = putNotif Nothing Nothing
 
 --------------------------------------------------------------------------------
 
-getIdent :: Exec a b Ident
-getIdent = asks _ident
-
-getNid :: Exec a b NotifIdent
-getNid = asks _nid
-
-getOpts :: Exec a b [Option]
-getOpts = asks _opts
-
 mkIdent :: Host -> Plugin -> Maybe PluginInst -> Ident
 mkIdent h p mpi = Ident (Identifier h p mpi)
 
 mkNid :: Host -> Plugin -> Maybe PluginInst -> NotifIdent
 mkNid h p mpi = NotifIdent (NotificationIdentifier (Just h) (Just p) mpi)
-
-dispatch :: Request -> IO ()
-dispatch = putStrLn . toLazyText . formatRequest
