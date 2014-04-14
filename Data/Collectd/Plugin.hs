@@ -2,6 +2,8 @@
 
 module Data.Collectd.Plugin
     ( Exec
+    , Ident      (..)
+    , NotifIdent (..)
     , dispatch
     , getEnv
     , getPrev
