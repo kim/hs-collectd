@@ -15,17 +15,21 @@ type Message    = Text
 
 
 -- host "/" plugin ["-" plugin instance] "/" type ["-" type instance]
-data Identifier
-    = Identifier !Host !Plugin (Maybe PluginInst) !Typ (Maybe TypInst)
-    deriving (Eq, Show)
+data Identifier = Identifier
+    { idHost       :: !Host
+    , idPlugin     :: !Plugin
+    , idPluginInst :: Maybe PluginInst
+    , idTyp        :: !Typ
+    , idTypInst    :: Maybe TypInst
+    } deriving (Eq, Show)
 
-data NotificationIdentifier
-    = NotificationIdentifier (Maybe Host)
-                             (Maybe Plugin)
-                             (Maybe PluginInst)
-                             (Maybe Typ)
-                             (Maybe TypInst)
-    deriving (Eq, Show)
+data NotificationIdentifier = NotificationIdentifier
+    { nidHost       :: Maybe Host
+    , nidPlugin     :: Maybe Plugin
+    , nidPluginInst :: Maybe PluginInst
+    , nidTyp        :: Maybe Typ
+    , nidTypInst    :: Maybe TypInst
+    } deriving (Eq, Show)
 
 data Value
     = Counter  !Word64
