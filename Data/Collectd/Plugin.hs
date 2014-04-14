@@ -14,6 +14,7 @@ module Data.Collectd.Plugin
     , putNotif
     , putNotifSimple
     , schedExec
+    , valueTyp
     , module PT
     )
 where
@@ -100,12 +101,7 @@ putVal mtyp mtypInst val = do
     dispatch $
         PutVal (runIdent ident typ mtypInst) opts (ValueList Now [val])
   where
-    typ  = fromMaybe vtyp mtyp
-    vtyp = case val of
-        Absolute _ -> "absolute"
-        Counter  _ -> "counter"
-        Derive   _ -> "derive"
-        Gauge    _ -> "gauge"
+    typ  = fromMaybe (valueTyp val) mtyp
 
 putNotif :: Maybe Typ
          -> Maybe TypInst
@@ -121,6 +117,11 @@ putNotif mtyp mtypInst msg sev = do
 putNotifSimple :: Message -> Severity -> Exec a b ()
 putNotifSimple = putNotif Nothing Nothing
 
+valueTyp :: Value -> Typ
+valueTyp (Absolute _) = "absolute"
+valueTyp (Counter  _) = "counter"
+valueTyp (Derive   _) = "derive"
+valueTyp (Gauge    _) = "gauge"
 
 --------------------------------------------------------------------------------
 
