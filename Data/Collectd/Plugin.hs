@@ -89,7 +89,7 @@ schedExec p mpInst a m = do
             _ -> return ()
 
     host = maybe getHostName pure
-    intv = pure . join . fmap readMaybe
+    intv = pure . fmap truncate . join . fmap readMaybe
 
 dispatch :: Request -> Exec a b ()
 dispatch = liftIO . putStrLn . toLazyText . formatRequest
