@@ -25,8 +25,9 @@ import Control.Monad.Reader
 import Data.Collectd.PlainText as PT
 import Data.Maybe
 import Data.Text               (pack)
+import Data.Text.IO            (putStrLn)
+import Data.Text.Lazy          (toStrict)
 import Data.Text.Lazy.Builder  (toLazyText)
-import Data.Text.Lazy.IO       (putStrLn)
 import Data.Time.Clock.POSIX   (getPOSIXTime)
 import Network.BSD             (getHostName)
 import Prelude                 hiding (putStrLn)
@@ -92,7 +93,7 @@ schedExec p mpInst a m = do
     intv = pure . fmap truncate . join . fmap readMaybe
 
 dispatch :: Request -> Exec a b ()
-dispatch = liftIO . putStrLn . toLazyText . formatRequest
+dispatch = liftIO . putStrLn . toStrict . toLazyText . formatRequest
 
 putVal :: Maybe Typ -> Maybe TypInst -> Value -> Exec a b ()
 putVal mtyp mtypInst val = do
