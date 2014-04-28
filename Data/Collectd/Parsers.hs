@@ -14,8 +14,8 @@ import Data.Text            (strip)
 notification :: Parser Notification
 notification = Notification <$> headers <*> body
   where
-    headers = header `sepBy` "\n" <* char '\n' <* skipSpace
-    body    = strip <$> takeTill (== '\n') <* skipSpace
+    headers = manyTill (header <* endOfLine) (try endOfLine)
+    body    = strip <$> takeText
 
 header :: Parser Header
 header = do
@@ -23,12 +23,14 @@ header = do
     case k of
         "Severity" -> Severity <$> severity
         "Time"     -> Time     <$> double
-        "Host"     -> Host     <$> takeTill (== '\n')
-        "Plugin"   -> Plugin   <$> takeTill (== '\n')
-        "Type"     -> Type     <$> takeTill (== '\n')
-        "PluginInstance" -> PluginInstance <$> takeTill (== '\n')
-        "TypeInstance"   -> TypeInstance   <$> takeTill (== '\n')
-        _  -> UnknownHeader k <$> takeTill (== '\n')
+        "Host"     -> Host     <$> tillEol
+        "Plugin"   -> Plugin   <$> tillEol
+        "Type"     -> Type     <$> tillEol
+        "PluginInstance" -> PluginInstance <$> tillEol
+        "TypeInstance"   -> TypeInstance   <$> tillEol
+        _  -> UnknownHeader k <$> tillEol
+  where
+    tillEol = takeTill isEndOfLine
 
 severity :: Parser Severity
 severity =  (const Failure <$> string "FAILURE")
