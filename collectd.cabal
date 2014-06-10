@@ -20,7 +20,7 @@ library
       , Data.Collectd.Types
 
   build-depends:
-        attoparsec  ==0.11.*
+        attoparsec  >=0.11 && <0.13
       , base        ==4.*
       , bytestring
       , cereal      ==0.4.*
