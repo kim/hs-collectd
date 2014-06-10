@@ -4,7 +4,11 @@ default: compile
 
 .PHONY: compile
 compile: deps
-	cabal build
+	cabal --require-sandbox build -j
 
 .PHONY: deps
 deps: cabal.sandbox.config
+	cabal install -j --only-dep
+
+cabal.sandbox.config:
+	cabal sandbox init
