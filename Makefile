@@ -1,5 +1,8 @@
 SHELL := /usr/bin/env bash
 
+CABAL_SANDBOX ?= $(CURDIR)/.cabal-sandbox
+
+
 default: compile
 
 .PHONY: compile
@@ -8,7 +11,11 @@ compile: deps
 
 .PHONY: deps
 deps: cabal.sandbox.config
-	cabal install -j --only-dep
+	cabal --require-sandbox install -j --only-dep
+
+.PHONY: dist
+dist: compile
+	cabal sdist
 
 cabal.sandbox.config:
-	cabal sandbox init
+	cabal sandbox init --sandbox=$(CABAL_SANDBOX)
