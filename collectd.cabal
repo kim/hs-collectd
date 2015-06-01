@@ -20,10 +20,10 @@ library
       , Data.Collectd.Types
 
   build-depends:
-        attoparsec  >=0.11 && <0.13
+        attoparsec
       , base        ==4.*
       , bytestring
-      , cereal      ==0.4.*
+      , cereal
       , mtl
       , network
       , text
