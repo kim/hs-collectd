@@ -2,7 +2,7 @@ name:                collectd
 version:             0.0.0
 synopsis:            collectd Text + Binary Protocols
 homepage:            https://github.com/kim/hs-collectd
-license:             OtherLicense
+license:             MPL-2.0
 license-file:        LICENSE
 author:              Kim Altintop <kim.altintop@gmail.com>
                    , Toralf Wittner <tw@dtex.org>
