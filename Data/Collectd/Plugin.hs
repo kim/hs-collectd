@@ -29,6 +29,7 @@ import Data.Text.IO            (putStrLn)
 import Data.Text.Lazy          (toStrict)
 import Data.Text.Lazy.Builder  (toLazyText)
 import Data.Time.Clock.POSIX   (getPOSIXTime)
+import Data.Word
 import Network.BSD             (getHostName)
 import Prelude                 hiding (putStrLn)
 import System.Environment      (lookupEnv)
@@ -71,7 +72,7 @@ getOpts = asks _opts
 schedExec :: Plugin -> Maybe PluginInst -> a -> Exec a b b -> IO ()
 schedExec p mpInst a m = do
     h <- host =<< lookupEnv "COLLECTD_HOST"
-    i <- intv =<< lookupEnv "COLLECTD_INTERVAL"
+    i <- intv <$> lookupEnv "COLLECTD_INTERVAL"
 
     let idt = mkIdent (pack h) p mpInst
         nid = mkNid   (pack h) p mpInst
@@ -90,7 +91,8 @@ schedExec p mpInst a m = do
             _ -> return ()
 
     host = maybe getHostName pure
-    intv = pure . fmap truncate . join . fmap readMaybe
+    -- annoyingly, collectd may pass "COLLECTD_INTERVAL" as a float
+    intv = fmap (truncate :: Double -> Word64) . join . fmap readMaybe
 
 dispatch :: Request -> Exec a b ()
 dispatch = liftIO . putStrLn . toStrict . toLazyText . formatRequest

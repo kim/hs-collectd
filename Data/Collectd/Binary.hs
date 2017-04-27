@@ -14,6 +14,8 @@ import Data.Word
 
 import qualified Data.ByteString as B
 
+import Prelude -- silence post-AMP complaints about importing Control.Applicative
+
 
 data Part
     = PHost          !Host
